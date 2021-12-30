@@ -1,0 +1,50 @@
+{% load static %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'league/base.css' %}" />
+
+{% if league %}
+    <table border="0" cellpadding="10" cellspacing="10">
+    <tr>
+        <td style="text-align:left"><a href={% url 'league:index' %}>Home</a></td>
+    </tr>
+    </table>
+    {% if tier %}
+        <form action="{% url 'league:table_view' league.id %}" method="post">
+            {% csrf_token %}
+            <input type="submit" value="Start" />
+        </form>
+    {% endif %}
+    <table border="0" cellpadding="10" cellspacing="10">
+    <tr>
+    {% for tier_obj in league.sorted_tier_set.all  %}
+        {% if tier and tier != tier_obj %}
+            <td style="text-align:left"><a href={% url 'league:league_view' league_id=league.id %}?tier_id={{tier_obj.id}}>{{tier_obj.name}}</a><td>
+        {% endif %}
+    {% endfor %}
+    </tr>
+    </table>
+{% else %}
+    <h1>No league available.</h1>
+{% endif %}
+
+
+{% if tier %}
+    <h2>{{ tier.name }}</h2>
+    <table border="1" cellpadding="10" cellspacing="0">
+    <tr>
+        <th style="text-align:left">Team</td>
+        <th>Strength</td>
+    </tr>
+    {% for team in tier.team_set.all  %}
+        <tr>
+            <td style="width:192px">{{team.name}}</td>
+            <td>{{team.strength}}</td>
+        </tr>
+    {% endfor %}
+    </table>
+{% else %}
+    <form action="{% url 'league:table_view' league_id=league.id %}" method="post">
+        {% csrf_token %}
+        <input type="submit" value="Create tiers" />
+    </form>
+{% endif %}

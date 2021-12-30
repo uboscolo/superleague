@@ -1,0 +1,19 @@
+{% load static %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'league/base.css' %}" />
+
+{% if league_list %}
+    <h2>Leagues</h2>
+    <table border="0" cellpadding="10" cellspacing="10">
+    {% for league in league_list %}
+        <tr>
+            <td style="text-align:left"><a href={% url 'league:league_view' league_id=league.id %}>{{league.name}}</a></td>
+        </tr>
+    {% endfor %}
+    </table>
+{% else %}
+    <form action="{% url 'league:league_view' league_id=0 %}" method="post">
+        {% csrf_token %}
+        <input type="submit" value="Create League" />
+    </form>
+{% endif %}

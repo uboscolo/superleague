@@ -1,0 +1,59 @@
+{% load static %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'league/base.css' %}" />
+
+{% if league %}
+    <table border="0" cellpadding="10" cellspacing="10">
+    <tr>
+        <td style="text-align:left"><a href={% url 'league:index' %}>Home</a></td>
+        {% for tier in league.sorted_tier_set.all  %}
+            {% if table and table == tier.table %}
+                <td style="text-align:left"><a href={% url 'league:match_view' league_id=league.id %}?schedule_id={{tier.schedule.id}}>Matches</a></td>
+            {% endif %}
+        {% endfor %}
+    </tr>
+    </table>
+    <table border="0" cellpadding="10" cellspacing="10">
+    <tr>
+    {% for tier in league.sorted_tier_set.all  %}
+        {% if table and table != tier.table %}
+            <td style="text-align:left"><a href={% url 'league:table_view' league_id=league.id %}?table_id={{tier.table.id}}>{{tier.table.name}}</a></td>
+        {% endif %}
+    {% endfor %}
+    </tr>
+    </table>
+{% else %}
+    <h1>No league available.</h1>
+{% endif %}
+
+{% if table %}
+    <h2>{{ table.year }} - Standings</h2>
+    <h2>{{ table.name }}</h2>
+    <table border="1" cellpadding="10" cellspacing="0">
+        <tr>
+            <th style="text-align:left">Club</th>
+            <th>MP</th>
+            <th>W</th>
+            <th>D</th>
+            <th>L</th>
+            <th>GF</th>
+            <th>GA</th>
+            <th>Pts</th>
+        </tr>
+        {% for entry in table.sorted_tableentry_set.all %}
+            <tr>
+                <td style="width:192px">{{ entry.team_name }}</td>
+                <td style="width:4px">{{entry.played}}</td>
+                <td style="width:4px">{{entry.wins}}</td>
+                <td style="width:4px">{{entry.draws}}</td>
+                <td style="width:4px">{{entry.losses}}</td>
+                <td style="width:4px">{{entry.goals_for}}</td>
+                <td style="width:4px">{{entry.goals_against}}</td>
+                <td style="width:4px">{{entry.points}}</td>
+                </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <h1>No table available.</h1>
+{% endif %}
+

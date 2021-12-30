@@ -1,0 +1,85 @@
+{% load static %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'league/base.css' %}" />
+
+{% if league %}
+    <table border="0" cellpadding="10" cellspacing="10">
+    <tr>
+        <td style="text-align:left"><a href={% url 'league:index' %}>Home</a></td>
+        {% for tier in league.sorted_tier_set.all  %}
+            {% if schedule and schedule == tier.schedule %}
+                <td style="text-align:left"><a href={% url 'league:table_view' league_id=league.id %}?table_id={{tier.table.id}}>Standings</a></td>
+            {% endif %}
+        {% endfor %}
+    </tr>
+    {% if schedule and schedule.day %}
+    <tr>
+        <table border="0" cellpadding="10" cellspacing="10">
+        <form action="{% url 'league:match_view' league.id %}" method="post">
+            {% csrf_token %}
+            <input type="submit" value="Play" />
+        </form>
+    <tr>
+    {% endif %}
+    </table>
+    <table border="0" cellpadding="10" cellspacing="10">
+    <tr>
+    {% for tier in league.sorted_tier_set.all  %}
+        {% if schedule and schedule != tier.schedule %}
+            <td style="text-align:left"><a href={% url 'league:match_view' league_id=league.id %}?schedule_id={{tier.schedule.id}}>{{tier.name}}</a></td>
+        {% endif %}
+    {% endfor %}
+    </tr>
+    </table>
+{% else %}
+    <h1>No league available.</h1>
+{% endif %}
+
+{% if schedule %}
+    <h2>{{ schedule.year }} - {{ schedule.tier.name }}</h2>
+    {% for day in schedule.sorted_day_set.all %}
+        {% if schedule.day %}
+            {% if day.number < schedule.day.number and day.number > schedule.day.number|add:-2 %}
+                <h2>Day {{ day.number }}</h2>
+                <table border="0" cellpadding="10" cellspacing="0">
+                {% for match in day.match_set.all %}
+                    <tr>
+                        <td style="width:192px">{{ match.team1 }}</td>
+                        <td style="width:192px">{{ match.team2 }}</td>
+                        <td style="width:96px">{{ match.result }}</td>
+                        <td style="width:256px">{{ match.venue }}</td>
+                    </tr>
+                {% endfor %}
+                </table>
+            {% endif %}
+        {% elif day.number|add:3 > schedule.sorted_day_set|length %}
+            <h2>Day {{ day.number }}</h2>
+            <table border="0" cellpadding="10" cellspacing="0">
+            {% for match in day.match_set.all %}
+                <tr>
+                    <td style="width:192px">{{ match.team1 }}</td>
+                    <td style="width:192px">{{ match.team2 }}</td>
+                    <td style="width:96px">{{ match.result }}</td>
+                    <td style="width:256px">{{ match.venue }}</td>
+                </tr>
+            {% endfor %}
+            </table>
+        {% endif %}
+    {% endfor %} 
+    {% if schedule.day %}
+        <h2>Day {{ schedule.day.number }} - Upcoming</h2>
+        <table border="0" cellpadding="10" cellspacing="0">
+        {% for match in schedule.day.match_set.all %}
+            <tr>
+                <td style="width:192px">{{ match.team1 }}</td>
+                <td style="width:192px">{{ match.team2 }}</td>
+                <td style="width:96px"> {{ match.time }}</td>
+                <td style="width:256px">{{ match.venue }}</td>
+            </tr>
+        {% endfor %}
+    {% endif %}
+    </table>
+{% else %}
+    <h1>No schedule available.</h1>
+{% endif %}
+
